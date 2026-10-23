@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#090b14">
+<title>REACTION RUSH</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #090b14;
+    --panel: #111627;
+    --panel2: #171e33;
+    --text: #f4f7ff;
+    --muted: #9ca8c6;
+    --cyan: #55f6ff;
+    --pink: #ff4fd8;
+    --lime: #c6ff6b;
+    --danger: #ff5577;
+  }
+  * { box-sizing: border-box; }
+  html { min-height: 100%; background: var(--bg); }
+  body {
+    margin: 0; min-height: 100vh; padding: 18px 14px 28px;
+    color: var(--text); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background:
+      radial-gradient(ellipse at 50% -10%, #20345a 0%, transparent 48%),
+      radial-gradient(ellipse at 100% 70%, #26123b 0%, transparent 38%), var(--bg);
+    display: flex; justify-content: center;
+  }
+  button { font: inherit; -webkit-tap-highlight-color: transparent; }
+  .app { width: min(100%, 520px); }
+  header { display:flex; justify-content:space-between; align-items:center; gap:12px; margin: 4px 2px 20px; }
+  .brand { display:flex; align-items:center; gap:10px; font-weight:950; letter-spacing:.09em; font-size: .98rem; }
+  .logo { width:36px; height:36px; border-radius:12px; display:grid; place-items:center; color:#071019; background:linear-gradient(135deg,var(--cyan),var(--lime)); box-shadow:0 0 22px #55f6ff40; font-size:20px; }
+  .pill { border:1px solid #ffffff18; color:var(--muted); border-radius:999px; padding:7px 10px; font-size:.74rem; white-space:nowrap; }
+  .hero { text-align:center; margin-bottom:20px; }
+  .eyebrow { color:var(--cyan); letter-spacing:.22em; font-size:.7rem; font-weight:850; text-transform:uppercase; }
+  h1 { margin:8px 0 5px; line-height:.98; letter-spacing:-.055em; font-size:clamp(2.5rem, 12vw, 4.25rem); font-weight:1000; }
+  h1 span { color:var(--cyan); text-shadow:0 0 25px #55f6ff45; }
+  .subtitle { color:var(--muted); margin:10px auto 0; font-size:.93rem; max-width:320px; line-height:1.5; }
+  .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:9px; margin-bottom:14px; }
+  .stat { padding:13px 8px; text-align:center; background:#111627c9; border:1px solid #ffffff12; border-radius:16px; }
+  .stat-label { color:var(--muted); font-size:.69rem; letter-spacing:.1em; text-transform:uppercase; font-weight:750; }
+  .stat-value { margin-top:5px; font-size:1.45rem; line-height:1.1; font-weight:900; font-variant-numeric:tabular-nums; }
+  .stat-value.best { color:var(--lime); }
+  .game-card { padding:12px; border-radius:24px; background:linear-gradient(160deg,#171e33f2,#0e1220f2); border:1px solid #ffffff18; box-shadow:0 18px 50px #0005; }
+  .arena { min-height:290px; height: min(44vh, 380px); border-radius:18px; border:1px solid #ffffff14; overflow:hidden; position:relative; display:flex; align-items:center; justify-content:center; text-align:center; padding:22px; background:
+      linear-gradient(#ffffff06 1px, transparent 1px),
+      linear-gradient(90deg,#ffffff06 1px, transparent 1px),
+      radial-gradient(ellipse at center,#18233b 0%,#0a0e1a 72%);
+    background-size:28px 28px,28px 28px,auto; touch-action:manipulation; user-select:none;
+  }
+  .arena::before { content:""; position:absolute; inset:12px; border:1px solid #ffffff0a; border-radius:12px; pointer-events:none; }
+  .arena.waiting { background:
+      linear-gradient(#ffffff07 1px, transparent 1px),
+      linear-gradient(90deg,#ffffff07 1px, transparent 1px),
+      radial-gradient(ellipse at center,#39203b 0%,#0a0e1a 72%); background-size:28px 28px,28px 28px,auto; }
+  .arena.go { background:
+      linear-gradient(#ffffff0b 1px, transparent 1px),
+      linear-gradient(90deg,#ffffff0b 1px, transparent 1px),
+      radial-gradient(ellipse at center,#0b514f 0%,#071a24 72%); background-size:28px 28px,28px 28px,auto; box-shadow:inset 0 0 55px #55f6ff20; }
+  .arena.too-soon { background:
+      linear-gradient(#ffffff07 1px, transparent 1px),
+      linear-gradient(90deg,#ffffff07 1px, transparent 1px),
+      radial-gradient(ellipse at center,#501e35 0%,#0a0e1a 72%); background-size:28px 28px,28px 28px,auto; }
+  .arena-content { position:relative; z-index:1; max-width:290px; pointer-events:none; }
+  .signal { width:68px; height:68px; margin:0 auto 17px; border-radius:22px; display:grid; place-items:center; font-size:30px; background:#ffffff0a; border:1px solid #ffffff16; }
+  .go .signal { background:#55f6ff15; border-color:#55f6ff65; box-shadow:0 0 35px #55f6ff20; color:var(--cyan); }
+  .waiting .signal { color:var(--pink); background:#ff4fd810; border-color:#ff4fd840; }
+  .too-soon .signal { color:var(--danger); }
+  .arena-title { font-size:clamp(1.55rem,7vw,2.2rem); font-weight:950; letter-spacing:-.04em; line-height:1.1; }
+  .arena-desc { color:#bac5df; margin-top:9px; font-size:.9rem; line-height:1.45; }
+  .result-number { font-size:clamp(2.6rem,12vw,4rem); color:var(--cyan); font-weight:1000; letter-spacing:-.06em; line-height:1.1; }
+  .result-number small { font-size:1rem; letter-spacing:0; color:var(--muted); }
+  .controls { display:grid; grid-template-columns:1fr; gap:9px; margin-top:12px; }
+  .main-btn { border:0; border-radius:15px; padding:16px 18px; min-height:54px; font-weight:950; letter-spacing:.045em; color:#071019; background:linear-gradient(100deg,var(--cyan),var(--lime)); box-shadow:0 7px 24px #55f6ff22; cursor:pointer; transition:transform .12s,filter .12s; }
+  .main-btn:active { transform:scale(.985); filter:brightness(.95); }
+  .main-btn:disabled { opacity:.45; cursor:not-allowed; }
+  .secondary-btn { border:1px solid #ffffff1a; border-radius:14px; padding:12px 14px; color:var(--text); background:#ffffff08; font-weight:750; cursor:pointer; }
+  .hint { color:var(--muted); text-align:center; font-size:.78rem; margin:12px 6px 0; line-height:1.5; }
+  .bottom-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:13px; }
+  .mini-card { background:#111627a8; border:1px solid #ffffff12; border-radius:16px; padding:14px; min-width:0; }
+  .mini-title { color:var(--muted); text-transform:uppercase; font-size:.68rem; letter-spacing:.12em; font-weight:800; }
+  .mini-value { font-size:1.03rem; font-weight:850; margin-top:6px; }
+  .rank { color:var(--lime); }
+  .history { display:flex; gap:6px; flex-wrap:wrap; margin-top:9px; }
+  .chip { border:1px solid #ffffff12; background:#ffffff07; border-radius:9px; padding:5px 7px; font-size:.74rem; color:#dce6ff; font-variant-numeric:tabular-nums; }
+  .footer { text-align:center; color:#65718f; font-size:.72rem; margin:18px 0 0; }
+  .toast { min-height:18px; color:var(--pink); font-size:.78rem; font-weight:750; text-align:center; margin-top:8px; }
+  @media (min-width:420px) { .controls { grid-template-columns:1fr auto; } .secondary-btn { padding-inline:18px; } }
+  @media (prefers-reduced-motion:no-preference) { .logo { animation:glow 3s ease-in-out infinite alternate; } @keyframes glow { to { box-shadow:0 0 32px #55f6ff70; } } }
+</style>
+</head>
+<body>
+<main class="app">
+  <header>
+    <div class="brand"><div class="logo">ϟ</div><span>RUSH<span style="color:var(--cyan)">LAB</span></span></div>
+    <div class="pill">⚡ QUICK REFLEX TEST</div>
+  </header>
+  <section class="hero">
+    <div class="eyebrow">Ready. Focus. React.</div>
+    <h1>REACTION<br><span>RUSH.</span></h1>
+    <p class="subtitle">Your reflexes versus the clock. Wait for cyan, then tap as fast as you can.</p>
+  </section>
+  <section class="stats" aria-label="Your stats">
+    <div class="stat"><div class="stat-label">Last time</div><div class="stat-value" id="lastTime">—</div></div>
+    <div class="stat"><div class="stat-label">Personal best</div><div class="stat-value best" id="bestTime">—</div></div>
+    <div class="stat"><div class="stat-label">Rounds</div><div class="stat-value" id="rounds">0</div></div>
+  </section>
+  <section class="game-card">
+    <div class="arena" id="arena" role="button" tabindex="0" aria-label="Reaction game area">
+      <div class="arena-content">
+        <div class="signal" id="signal">ϟ</div>
+        <div class="arena-title" id="arenaTitle">READY TO REACT?</div>
+        <div class="arena-desc" id="arenaDesc">Tap start, then wait for the arena to turn cyan.</div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="main-btn" id="startBtn">▶ &nbsp; START ROUND</button>
+      <button class="secondary-btn" id="resetBtn" title="Clear your local scores">Reset scores ↻</button>
+    </div>
+    <div class="toast" id="toast" aria-live="polite"></div>
+    <p class="hint">Don't tap early! An early tap counts as a false start. Best played with one thumb and no distractions.</p>
+  </section>
+  <section class="bottom-grid">
+    <div class="mini-card">
+      <div class="mini-title">Reflex rating</div>
+      <div class="mini-value rank" id="rating">Unranked</div>
+      <div class="mini-title" style="margin-top:12px">Average</div>
+      <div class="mini-value" id="average">—</div>
+    </div>
+    <div class="mini-card">
+      <div class="mini-title">Recent rounds</div>
+      <div class="history" id="history"><span class="chip">Your times appear here</span></div>
+    </div>
+  </section>
+  <p class="footer">RUSHLAB • Made for your next personal best • Scores stay on this device</p>
+</main>
+<script>
+(() => {
+  "use strict";
+  const $ = id => document.getElementById(id);
+  const arena = $("arena"), startBtn = $("startBtn"), resetBtn = $("resetBtn");
+  const arenaTitle = $("arenaTitle"), arenaDesc = $("arenaDesc"), signal = $("signal");
+  const lastTime = $("lastTime"), bestTime = $("bestTime"), roundsEl = $("rounds");
+  const ratingEl = $("rating"), averageEl = $("average"), historyEl = $("history"), toast = $("toast");
+  const STORE = "reactionRushStats_v1";
+  let state = "idle", timeout = null, startedAt = 0, goAt = 0;
+  let rounds = 0, best = null, times = [], last = null;
+
+  function load() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORE) || "{}");
+      rounds = Number.isFinite(saved.rounds) ? saved.rounds : 0;
+      best = Number.isFinite(saved.best) ? saved.best : null;
+      times = Array.isArray(saved.times) ? saved.times.filter(n => Number.isFinite(n) && n > 0).slice(0, 8) : [];
+      last = Number.isFinite(saved.last) ? saved.last : null;
+    } catch (_) {}
+    renderStats();
+  }
+  function save() {
+    try { localStorage.setItem(STORE, JSON.stringify({rounds, best, times, last})); } catch (_) {}
+  }
+  function clearTimer() { if (timeout !== null) { clearTimeout(timeout); timeout = null; } }
+  function show(title, desc, icon, cls = "") {
+    arena.className = "arena" + (cls ? " " + cls : "");
+    arenaTitle.textContent = title;
+    arenaDesc.textContent = desc;
+    signal.textContent = icon;
+  }
+  function renderStats() {
+    lastTime.textContent = last === null ? "—" : last + " ms";
+    bestTime.textContent = best === null ? "—" : best + " ms";
+    roundsEl.textContent = String(rounds);
+    averageEl.textContent = times.length ? Math.round(times.reduce((a,b)=>a+b,0)/times.length) + " ms" : "—";
+    const b = best;
+    ratingEl.textContent = b === null ? "Unranked" : b < 180 ? "⚡ Lightning" : b < 230 ? "🔥 Elite" : b < 300 ? "🎯 Sharp" : b < 400 ? "💪 Warming up" : "🐢 Keep training";
+    historyEl.replaceChildren();
+    if (!times.length) {
+      const chip = document.createElement("span"); chip.className = "chip"; chip.textContent = "Your times appear here"; historyEl.append(chip);
+    } else {
+      times.slice(0,6).forEach((n,i) => { const chip = document.createElement("span"); chip.className = "chip"; chip.textContent = n + " ms"; chip.title = "Recent round " + (i+1); historyEl.append(chip); });
+    }
+  }
+  function start() {
+    clearTimer(); toast.textContent = "";
+    if (state === "waiting" || state === "go") return;
+    state = "waiting";
+    startBtn.disabled = true;
+    startBtn.textContent = "WAIT FOR CYAN…";
+    show("WAIT FOR IT…", "Stay ready. Tap only when the screen turns cyan.", "⌛", "waiting");
+    const delay = 1400 + Math.random() * 3000;
+    timeout = setTimeout(() => {
+      timeout = null;
+      if (state !== "waiting") return;
+      state = "go"; goAt = performance.now();
+      show("TAP NOW!", "Quick! Tap anywhere in this arena.", "⚡", "go");
+      startBtn.disabled = false;
+      startBtn.textContent = "⚡ TAP NOW!";
+    }, delay);
+  }
+  function falseStart() {
+    clearTimer(); state = "false";
+    show("TOO SOON!", "Patience, player. Take a breath and try again.", "✕", "too-soon");
+    startBtn.disabled = false; startBtn.textContent = "↻ TRY AGAIN";
+    toast.textContent = "False start — no time recorded.";
+  }
+  function hit() {
+    const ms = Math.max(0, Math.round(performance.now() - goAt));
+    state = "result"; rounds++; last = ms; times.unshift(ms); times = times.slice(0,8);
+    if (best === null || ms < best) { best = ms; toast.textContent = "NEW PERSONAL BEST! 🏆"; }
+    else { toast.textContent = ms < 250 ? "SPEEDY! Keep it going." : "Round complete. Can you beat it?"; }
+    show(ms + " ms", ms < 200 ? "Incredible reflexes. That's seriously quick!" : ms < 280 ? "Nice reaction! Go for a new best." : "Good try. Reset your focus and go again.", "✓");
+    arena.querySelector(".arena-title").classList.add("result-number");
+    startBtn.disabled = false; startBtn.textContent = "↻ PLAY AGAIN";
+    save(); renderStats();
+  }
+  function tapArena() {
+    if (state === "waiting") { falseStart(); return; }
+    if (state === "go") { hit(); return; }
+    if (state === "idle" || state === "false" || state === "result") start();
+  }
+  function reset() {
+    clearTimer(); state = "idle"; rounds = 0; best = null; times = []; last = null;
+    try { localStorage.removeItem(STORE); } catch (_) {}
+    show("READY TO REACT?", "Tap start, then wait for the arena to turn cyan.", "ϟ");
+    startBtn.disabled = false; startBtn.textContent = "▶  START ROUND";
+    toast.textContent = ""; renderStats();
+  }
+  startBtn.addEventListener("click", () => {
+    if (state === "go") hit();
+    else if (state === "waiting") return;
+    else start();
+  });
+  arena.addEventListener("click", tapArena);
+  arena.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); tapArena(); } });
+  resetBtn.addEventListener("click", reset);
+  load();
+})();
+</script>
+</body>
+</html>
